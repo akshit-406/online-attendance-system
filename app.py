@@ -16,12 +16,12 @@ app.config['SECRET_KEY'] = os.environ.get(
     'dev-secret-key'
 )
 
-database_url = os.environ.get(
-    'DATABASE_URL',
-    'sqlite:///attendance.db'
-)
+database_url = os.environ.get('DATABASE_URL')
 
-app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+if database_url:
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///attendance.db'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -55,7 +55,6 @@ def load_user(user_id):
 # --------------------------------
 
 with app.app_context():
-
     db.create_all()
 
 
