@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block title %}Mark Attendance{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h2>Mark Attendance</h2>
+
+        <p class="text-muted mb-0">
+            {{ subject.subject_name }}
+            ({{ subject.subject_code }})
+        </p>
+    </div>
+
+    <a href="{{ url_for('main.teacher_dashboard') }}"
+       class="btn btn-secondary">
+        Back to Dashboard
+    </a>
+
+</div>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+
+        <h4 class="mb-3">
+            {{ subject.subject_name }}
+        </h4>
+
+        <p class="mb-1">
+            <strong>Subject Code:</strong>
+            {{ subject.subject_code }}
+        </p>
+
+        <p class="mb-0">
+            <strong>Class:</strong>
+
+            {% if student_class %}
+                {{ student_class.class_name }}
+                -
+                {{ student_class.section }}
+            {% else %}
+                -
+            {% endif %}
+        </p>
+
+    </div>
+</div>
+
+
+<div class="card shadow">
+
+    <div class="card-header bg-primary text-white">
+
+        <h5 class="mb-0">
+            Attendance
+        </h5>
+
+    </div>
+
+
+    <div class="card-body">
+
+        <form method="POST" onsubmit="return confirmAttendance()"
+              action="{{ url_for('main.mark_attendance', subject_id=subject.id) }}">
+
+
+            <!-- Date -->
+
+            <div class="row mb-4">
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        <strong>Attendance Date</strong>
+                    </label>
+
+                    <input
+                        type="date"
+                        name="attendance_date"
+                        class="form-control"
+                        max="{{ today }}"
+                        required
+                    >
+
+                </div>
+
+                <div class="col-md-6 d-flex align-items-end">
+
+                    <button type="button"
+                            class="btn btn-success me-2"
+                            onclick="markAll('Present')">
+
+                        ✓ Mark All Present
+
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-danger"
+                            onclick="markAll('Absent')">
+
+                        ✗ Mark All Absent
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            {% if students %}
+
+
+            <!-- Student Table -->
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover">
+
+                    <thead class="table-primary">
+
+                        <tr>
+                            <th>#</th>
+                            <th>Roll Number</th>
+                            <th>Student Name</th>
+                            <th class="text-center">
+                                Attendance
+                            </th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for student in students %}
+
+                        <tr>
+
+                            <td>
+                                {{ loop.index }}
+                            </td>
+
+                            <td>
+                                <strong>
+                                    {{ student.roll_no }}
+                                </strong>
+                            </td>
+
+                            <td>
+                                {{ student.name }}
+                            </td>
+
+                            <td class="text-center">
+
+                                <div class="form-check form-check-inline">
+
+                                    <input
+                                        class="form-check-input"
+                                        type="radio"
+                                        name="status_{{ student.id }}"
+                                        value="Present"
+                                        id="present_{{ student.id }}"
+                                        required>
+
+                                    <label
+                                        class="form-check-label text-success"
+                                        for="present_{{ student.id }}">
+
+                                        Present
+
+                                    </label>
+
+                                </div>
+
+
+                                <div class="form-check form-check-inline">
+
+                                    <input
+                                        class="form-check-input"
+                                        type="radio"
+                                        name="status_{{ student.id }}"
+                                        value="Absent"
+                                        id="absent_{{ student.id }}">
+
+                                    <label
+                                        class="form-check-label text-danger"
+                                        for="absent_{{ student.id }}">
+
+                                        Absent
+
+                                    </label>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <div class="d-flex justify-content-end mt-3">
+
+                <button type="submit"
+                        class="btn btn-success">
+
+                    Save Attendance
+
+                </button>
+
+            </div>
+
+
+            {% else %}
+
+                <div class="alert alert-warning">
+
+                    No students are assigned to this class.
+
+                </div>
+
+            {% endif %}
+
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+function markAll(status) {
+
+    const radioButtons = document.querySelectorAll(
+        'input[type="radio"]'
+    );
+
+    radioButtons.forEach(function(radio) {
+
+        if (radio.value === status) {
+            radio.checked = true;
+        }
+
+    });
+}
+
+function confirmAttendance() {
+
+    return confirm(
+        'Are you sure you want to save attendance for this date?'
+    );
+}
+
+document.querySelector('form').addEventListener(
+    'submit',
+    function(event) {
+
+        const students = document.querySelectorAll(
+            'input[type="radio"]'
+        );
+
+        const studentIds = new Set();
+
+        students.forEach(function(radio) {
+            studentIds.add(radio.name);
+        });
+
+        for (const name of studentIds) {
+
+            const selected = document.querySelector(
+                'input[name="' + name + '"]:checked'
+            );
+
+            if (!selected) {
+
+                event.preventDefault();
+
+                alert(
+                    'Please select Present or Absent for every student.'
+                );
+
+                return;
+            }
+        }
+    }
+);
+</script>
+
+{% endblock %}

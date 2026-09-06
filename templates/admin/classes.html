@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+
+Manage Classes
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <h2>
+        Manage Classes
+    </h2>
+
+    <a
+        href="{{ url_for('main.add_class') }}"
+        class="btn btn-success">
+
+        + Add Class
+
+    </a>
+
+</div>
+
+
+<div class="card shadow">
+
+    <div class="card-body">
+
+        {% if classes %}
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-hover">
+
+                <thead class="table-primary">
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Class Name</th>
+
+                        <th>Section</th>
+
+                        <th>Actions</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for class_item in classes %}
+
+                    <tr>
+
+                        <td>
+                            {{ class_item.id }}
+                        </td>
+
+                        <td>
+                            {{ class_item.class_name }}
+                        </td>
+
+                        <td>
+                            {{ class_item.section }}
+                        </td>
+
+                        <td>
+
+                            <a
+                                href="{{ url_for(
+                                    'main.edit_class',
+                                    class_id=class_item.id
+                                ) }}"
+                                class="btn btn-warning btn-sm"
+                            >
+                                Edit
+                            </a>
+
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'main.delete_class',
+                                    class_id=class_item.id
+                                ) }}"
+                                style="display: inline;"
+                                onsubmit="return confirm(
+                                    'Are you sure you want to delete this class?'
+                                );"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-danger btn-sm"
+                                >
+                                    Delete
+                                </button>
+
+                            </form>
+
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="alert alert-info">
+
+            No classes have been added yet.
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+{% endblock %}

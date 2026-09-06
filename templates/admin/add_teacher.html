@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}
+Add Teacher
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-md-7">
+
+        <div class="card shadow">
+
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Add Teacher</h4>
+            </div>
+
+            <div class="card-body">
+
+                <form method="POST">
+
+                    <!-- User Account -->
+
+                    <div class="mb-3">
+
+                        <label for="user_id" class="form-label">
+                            Teacher User Account
+                        </label>
+
+                        <select
+                            name="user_id"
+                            id="user_id"
+                            class="form-select"
+                            required
+                        >
+
+                            <option value="">
+                                -- Select Teacher User --
+                            </option>
+
+                            {% for user in available_users %}
+
+                            <option value="{{ user.id }}">
+                                {{ user.username }} - {{ user.email }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Teacher Name -->
+
+                    <div class="mb-3">
+
+                        <label for="name" class="form-label">
+                            Teacher Name
+                        </label>
+
+                        <input
+                            type="text"
+                            name="name"
+                            id="name"
+                            class="form-control"
+                            placeholder="Enter teacher name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Employee ID -->
+
+                    <div class="mb-3">
+
+                        <label for="employee_id" class="form-label">
+                            Employee ID
+                        </label>
+
+                        <input
+                            type="text"
+                            name="employee_id"
+                            id="employee_id"
+                            class="form-control"
+                            placeholder="Enter employee ID"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Department -->
+
+                    <div class="mb-3">
+
+                        <label for="department" class="form-label">
+                            Department
+                        </label>
+
+                        <input
+                            type="text"
+                            name="department"
+                            id="department"
+                            class="form-control"
+                            placeholder="Enter department"
+                        >
+
+                    </div>
+
+
+                    <!-- Buttons -->
+
+                    <div class="d-flex gap-2">
+
+                        <button
+                            type="submit"
+                            class="btn btn-success"
+                        >
+                            Add Teacher
+                        </button>
+
+                        <a
+                            href="{{ url_for('main.manage_teachers') }}"
+                            class="btn btn-secondary"
+                        >
+                            Cancel
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

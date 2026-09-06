@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+
+Add Class
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-md-6">
+
+        <div class="card shadow">
+
+            <div class="card-header bg-primary text-white">
+
+                <h4 class="mb-0">
+                    Add New Class
+                </h4>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <form method="POST">
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Class Name
+                        </label>
+
+                        <input
+                            type="text"
+                            name="class_name"
+                            class="form-control"
+                            placeholder="Example: BCA"
+                            required>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Section
+                        </label>
+
+                        <input
+                            type="text"
+                            name="section"
+                            class="form-control"
+                            placeholder="Example: A"
+                            required>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-success">
+
+                        Save Class
+
+                    </button>
+
+
+                    <a
+                        href="{{ url_for('main.manage_classes') }}"
+                        class="btn btn-secondary">
+
+                        Cancel
+
+                    </a>
+
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,710 @@
+{% extends "base.html" %}
+
+{% block title %}
+Attendance Analytics
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <!-- Page Heading -->
+
+    <div class="mb-4">
+
+        <h2>
+            Attendance Analytics
+        </h2>
+
+        <p class="text-muted">
+            Analyze attendance performance across classes and subjects.
+        </p>
+
+    </div>
+
+
+    <!-- Filters -->
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+                Filter Analytics
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <form
+                method="GET"
+                action="{{ url_for('main.admin_attendance_analytics') }}"
+            >
+
+                <div class="row">
+
+                    <!-- Class -->
+
+                    <div class="col-md-5 mb-3">
+
+                        <label class="form-label">
+                            Class
+                        </label>
+
+                        <select
+                            name="class_id"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                All Classes
+                            </option>
+
+                            {% for class_item in classes %}
+
+                            <option
+                                value="{{ class_item.id }}"
+                                {% if selected_class_id == class_item.id|string %}
+                                    selected
+                                {% endif %}
+                            >
+
+                                {{ class_item.class_name }}
+                                -
+                                {{ class_item.section }}
+
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Subject -->
+
+                    <div class="col-md-5 mb-3">
+
+                        <label class="form-label">
+                            Subject
+                        </label>
+
+                        <select
+                            name="subject_id"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                All Subjects
+                            </option>
+
+                            {% for subject in subjects %}
+
+                            <option
+                                value="{{ subject.id }}"
+                                {% if selected_subject_id == subject.id|string %}
+                                    selected
+                                {% endif %}
+                            >
+
+                                {{ subject.subject_name }}
+                                ({{ subject.subject_code }})
+
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Buttons -->
+
+                    <div class="col-md-2 mb-3 d-flex align-items-end">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary me-2"
+                        >
+                            Filter
+                        </button>
+
+                        <a
+                            href="{{ url_for('main.admin_attendance_analytics') }}"
+                            class="btn btn-secondary"
+                        >
+                            Clear
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- Overall Statistics -->
+
+    <div class="row">
+
+        <!-- Total -->
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card shadow text-center">
+
+                <div class="card-body">
+
+                    <h6>
+                        Total Records
+                    </h6>
+
+                    <h2>
+                        {{ total_records }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Present -->
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card shadow text-center">
+
+                <div class="card-body">
+
+                    <h6>
+                        Present
+                    </h6>
+
+                    <h2 class="text-success">
+                        {{ present_count }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Absent -->
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card shadow text-center">
+
+                <div class="card-body">
+
+                    <h6>
+                        Absent
+                    </h6>
+
+                    <h2 class="text-danger">
+                        {{ absent_count }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Percentage -->
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card shadow text-center">
+
+                <div class="card-body">
+
+                    <h6>
+                        Overall Attendance
+                    </h6>
+
+                    {% if overall_percentage >= 75 %}
+
+                        <h2 class="text-success">
+                            {{ "%.1f"|format(overall_percentage) }}%
+                        </h2>
+
+                    {% elif overall_percentage >= 60 %}
+
+                        <h2 class="text-warning">
+                            {{ "%.1f"|format(overall_percentage) }}%
+                        </h2>
+
+                    {% else %}
+
+                        <h2 class="text-danger">
+                            {{ "%.1f"|format(overall_percentage) }}%
+                        </h2>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Overall Progress -->
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+                Overall Attendance Progress
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="progress" style="height: 30px;">
+
+                <div
+                    class="progress-bar"
+                    role="progressbar"
+                    style="width: {{ overall_percentage }}%;"
+                    aria-valuenow="{{ overall_percentage }}"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                >
+
+                    {{ "%.1f"|format(overall_percentage) }}%
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- Attendance Charts -->
+    <!-- ============================= -->
+
+    <div class="row mb-4">
+
+        <!-- Present vs Absent -->
+
+        <div class="col-md-5 mb-4">
+
+            <div class="card shadow h-100">
+
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        Present vs Absent
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <canvas id="attendancePieChart"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Subject Attendance -->
+
+        <div class="col-md-7 mb-4">
+
+            <div class="card shadow h-100">
+
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        Subject-wise Attendance %
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <canvas id="subjectAttendanceChart"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Present vs Absent by Subject -->
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+                Present vs Absent by Subject
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <canvas id="subjectPresentAbsentChart"></canvas>
+
+        </div>
+
+    </div>
+
+
+    <!-- Subject-wise Analytics -->
+
+    <div class="card shadow">
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+                Subject-wise Attendance
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            {% if subject_reports %}
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover">
+
+                    <thead class="table-primary">
+
+                        <tr>
+
+                            <th>
+                                Subject
+                            </th>
+
+                            <th>
+                                Code
+                            </th>
+
+                            <th>
+                                Total Classes
+                            </th>
+
+                            <th>
+                                Present
+                            </th>
+
+                            <th>
+                                Absent
+                            </th>
+
+                            <th>
+                                Attendance %
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for report in subject_reports %}
+
+                        <tr>
+
+                            <td>
+                                {{ report.subject.subject_name }}
+                            </td>
+
+                            <td>
+                                {{ report.subject.subject_code }}
+                            </td>
+
+                            <td>
+                                {{ report.total }}
+                            </td>
+
+                            <td class="text-success">
+                                <strong>
+                                    {{ report.present }}
+                                </strong>
+                            </td>
+
+                            <td class="text-danger">
+                                <strong>
+                                    {{ report.absent }}
+                                </strong>
+                            </td>
+
+                            <td>
+
+                                {% if report.percentage >= 75 %}
+
+                                    <span class="badge bg-success">
+                                        {{ "%.1f"|format(report.percentage) }}%
+                                    </span>
+
+                                {% elif report.percentage >= 60 %}
+
+                                    <span class="badge bg-warning text-dark">
+                                        {{ "%.1f"|format(report.percentage) }}%
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-danger">
+                                        {{ "%.1f"|format(report.percentage) }}%
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            {% else %}
+
+            <div class="alert alert-info mb-0">
+
+                No attendance data available for the selected filters.
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Chart.js -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script>
+
+    // =====================================
+    // Overall Present vs Absent Chart
+    // =====================================
+
+    const attendancePieChart =
+        document.getElementById(
+            'attendancePieChart'
+        );
+
+
+    new Chart(
+        attendancePieChart,
+        {
+            type: 'doughnut',
+
+            data: {
+
+                labels: [
+                    'Present',
+                    'Absent'
+                ],
+
+                datasets: [
+                    {
+                        data: [
+                            {{ present_count }},
+                            {{ absent_count }}
+                        ]
+                    }
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                plugins: {
+
+                    legend: {
+                        position: 'bottom'
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+
+    // =====================================
+    // Subject Attendance Percentage
+    // =====================================
+
+    const subjectAttendanceChart =
+        document.getElementById(
+            'subjectAttendanceChart'
+        );
+
+
+    new Chart(
+        subjectAttendanceChart,
+        {
+            type: 'bar',
+
+            data: {
+
+                labels:
+                    {{ chart_subject_names | tojson }},
+
+                datasets: [
+                    {
+                        label:
+                            'Attendance %',
+
+                        data:
+                            {{ chart_subject_percentages | tojson }}
+                    }
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true,
+
+                        max: 100,
+
+                        title: {
+
+                            display: true,
+
+                            text:
+                                'Attendance Percentage'
+
+                        }
+
+                    }
+
+                },
+
+                plugins: {
+
+                    legend: {
+                        display: false
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+
+    // =====================================
+    // Subject Present vs Absent
+    // =====================================
+
+    const subjectPresentAbsentChart =
+        document.getElementById(
+            'subjectPresentAbsentChart'
+        );
+
+
+    new Chart(
+        subjectPresentAbsentChart,
+        {
+            type: 'bar',
+
+            data: {
+
+                labels:
+                    {{ chart_subject_names | tojson }},
+
+                datasets: [
+
+                    {
+                        label: 'Present',
+
+                        data:
+                            {{ chart_subject_present | tojson }}
+                    },
+
+                    {
+                        label: 'Absent',
+
+                        data:
+                            {{ chart_subject_absent | tojson }}
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true,
+
+                        title: {
+
+                            display: true,
+
+                            text:
+                                'Number of Classes'
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+</script>
+
+{% endblock %}

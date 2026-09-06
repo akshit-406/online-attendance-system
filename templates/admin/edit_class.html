@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+
+Edit Class
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-md-6">
+
+        <div class="card shadow">
+
+            <div class="card-header bg-warning">
+
+                <h4 class="mb-0">
+                    Edit Class
+                </h4>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <form method="POST">
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Class Name
+                        </label>
+
+                        <input
+                            type="text"
+                            name="class_name"
+                            class="form-control"
+                            value="{{ class_item.class_name }}"
+                            required>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Section
+                        </label>
+
+                        <input
+                            type="text"
+                            name="section"
+                            class="form-control"
+                            value="{{ class_item.section }}"
+                            required>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-success">
+
+                        Update Class
+
+                    </button>
+
+
+                    <a
+                        href="{{ url_for('main.manage_classes') }}"
+                        class="btn btn-secondary">
+
+                        Cancel
+
+                    </a>
+
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,455 @@
+{% extends "base.html" %}
+
+{% block title %}
+
+Student Attendance Report
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+
+    <!-- Page Header -->
+    <div class="mb-4">
+
+        <h2>
+            Student Attendance Report
+        </h2>
+
+        <p class="text-muted">
+            View subject-wise attendance of a student.
+        </p>
+
+    </div>
+
+
+    <!-- Student Selection -->
+    <div class="card shadow mb-4">
+
+        <div class="card-header bg-primary text-white">
+
+            <h5 class="mb-0">
+                Select Student
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <form
+                method="GET"
+                action="{{ url_for('main.admin_student_attendance') }}"
+            >
+
+                <div class="row">
+
+                    <div class="col-md-8">
+
+                        <label class="form-label">
+                            Student
+                        </label>
+
+                        <select
+                            name="student_id"
+                            class="form-select"
+                            required
+                        >
+
+                            <option value="">
+                                Select Student
+                            </option>
+
+                            {% for student in students %}
+
+                            <option
+                                value="{{ student.id }}"
+                                {% if selected_student_id|string == student.id|string %}
+                                    selected
+                                {% endif %}
+                            >
+
+                                {{ student.name }}
+                                - Roll No: {{ student.roll_no }}
+
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="col-md-4 d-flex align-items-end">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary me-2"
+                        >
+
+                            View Report
+
+                        </button>
+
+
+                        <a
+                            href="{{ url_for('main.admin_student_attendance') }}"
+                            class="btn btn-secondary"
+                        >
+
+                            Clear
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    {% if selected_student %}
+
+    <!-- Student Information -->
+    <div class="card shadow mb-4">
+
+        <div class="card-body">
+
+            <h4>
+                {{ selected_student.name }}
+            </h4>
+
+            <p class="mb-1">
+                <strong>Roll No:</strong>
+                {{ selected_student.roll_no }}
+            </p>
+
+            <p class="mb-0">
+                <strong>Class:</strong>
+
+                {% if selected_class %}
+
+                    {{ selected_class.class_name }}
+                    -
+                    {{ selected_class.section }}
+
+                {% else %}
+
+                    -
+
+                {% endif %}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- Overall Summary -->
+    <div class="row mb-4">
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card shadow text-center">
+
+                <div class="card-body">
+
+                    <h5>Total Classes</h5>
+
+                    <h2>
+                        {{ overall_total }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card shadow text-center">
+
+                <div class="card-body">
+
+                    <h5>Present</h5>
+
+                    <h2 class="text-success">
+                        {{ overall_present }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card shadow text-center">
+
+                <div class="card-body">
+
+                    <h5>Absent</h5>
+
+                    <h2 class="text-danger">
+                        {{ overall_absent }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card shadow text-center">
+
+                <div class="card-body">
+
+                    <h5>Attendance %</h5>
+
+                    <h2>
+
+                        {% if overall_percentage >= 75 %}
+
+                            <span class="text-success">
+                                {{ "%.2f"|format(overall_percentage) }}%
+                            </span>
+
+                        {% elif overall_percentage >= 60 %}
+
+                            <span class="text-warning">
+                                {{ "%.2f"|format(overall_percentage) }}%
+                            </span>
+
+                        {% else %}
+
+                            <span class="text-danger">
+                                {{ "%.2f"|format(overall_percentage) }}%
+                            </span>
+
+                        {% endif %}
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Attendance Chart -->
+    <div class="card shadow mb-4">
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+                Attendance Overview
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            {% if subject_reports %}
+
+            {% for report in subject_reports %}
+
+            <div class="mb-3">
+
+                <div class="d-flex justify-content-between">
+
+                    <strong>
+                        {{ report.subject.subject_name }}
+                    </strong>
+
+                    <span>
+                        {{ "%.2f"|format(report.percentage) }}%
+                    </span>
+
+                </div>
+
+                <div class="progress">
+
+            <div
+                class="progress-bar"
+                role="progressbar"
+                style="width: {{ report.percentage }}%"
+                aria-valuenow="{{ report.percentage }}"
+                aria-valuemin="0"
+                aria-valuemax="100">
+            </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+            {% else %}
+
+            <p class="text-muted mb-0">
+                No attendance data available.
+            </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- Subject-wise Report -->
+    <div class="card shadow">
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+                Subject-wise Attendance
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            {% if subject_reports %}
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover">
+
+                    <thead class="table-primary">
+
+                        <tr>
+
+                            <th>
+                                #
+                            </th>
+
+                            <th>
+                                Subject
+                            </th>
+
+                            <th>
+                                Subject Code
+                            </th>
+
+                            <th>
+                                Total Classes
+                            </th>
+
+                            <th>
+                                Present
+                            </th>
+
+                            <th>
+                                Absent
+                            </th>
+
+                            <th>
+                                Percentage
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for report in subject_reports %}
+
+                        <tr>
+
+                            <td>
+                                {{ loop.index }}
+                            </td>
+
+                            <td>
+                                {{ report.subject.subject_name }}
+                            </td>
+
+                            <td>
+                                {{ report.subject.subject_code }}
+                            </td>
+
+                            <td>
+                                {{ report.total }}
+                            </td>
+
+                            <td class="text-success">
+                                {{ report.present }}
+                            </td>
+
+                            <td class="text-danger">
+                                {{ report.absent }}
+                            </td>
+
+                            <td>
+
+                                {% if report.percentage >= 75 %}
+
+                                    <span class="badge bg-success">
+                                        {{ "%.2f"|format(report.percentage) }}%
+                                    </span>
+
+                                {% elif report.percentage >= 60 %}
+
+                                    <span class="badge bg-warning text-dark">
+                                        {{ "%.2f"|format(report.percentage) }}%
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-danger">
+                                        {{ "%.2f"|format(report.percentage) }}%
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            {% else %}
+
+            <div class="alert alert-info">
+
+                No attendance records found for this student.
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

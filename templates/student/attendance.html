@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+
+{% block title %}My Attendance{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h2>My Attendance</h2>
+        <p class="text-muted mb-0">
+            {{ student.name }} |
+            Roll No: {{ student.roll_no }}
+        </p>
+    </div>
+
+    <a href="{{ url_for('main.student_dashboard') }}"
+       class="btn btn-secondary">
+        Back to Dashboard
+    </a>
+
+</div>
+
+
+<!-- Overall Summary -->
+
+<div class="row mb-4">
+
+    <div class="col-md-3 mb-3">
+        <div class="card shadow text-center">
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Total Classes
+                </h6>
+
+                <h2>
+                    {{ attendance_records|length }}
+                </h2>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-3 mb-3">
+        <div class="card shadow text-center">
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Present
+                </h6>
+
+                <h2 class="text-success">
+                    {{ attendance_records
+                       |selectattr('status', 'equalto', 'Present')
+                       |list
+                       |length }}
+                </h2>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-3 mb-3">
+        <div class="card shadow text-center">
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Absent
+                </h6>
+
+                <h2 class="text-danger">
+                    {{ attendance_records
+                       |selectattr('status', 'equalto', 'Absent')
+                       |list
+                       |length }}
+                </h2>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-3 mb-3">
+        <div class="card shadow text-center">
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Overall Attendance
+                </h6>
+
+                {% set total = attendance_records|length %}
+                {% set present = attendance_records
+                    |selectattr('status', 'equalto', 'Present')
+                    |list
+                    |length %}
+
+                {% if total > 0 %}
+                    {% set percentage = (present / total) * 100 %}
+                {% else %}
+                    {% set percentage = 0 %}
+                {% endif %}
+
+                <h2>
+                    {{ "%.2f"|format(percentage) }}%
+                </h2>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- Subject-wise Attendance -->
+
+<div class="card shadow mb-4">
+
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+            Subject-wise Attendance
+        </h5>
+    </div>
+
+    <div class="card-body">
+
+        {% if subject_reports %}
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-hover">
+
+                <thead class="table-primary">
+
+                    <tr>
+                        <th>Subject</th>
+                        <th>Subject Code</th>
+                        <th>Total Classes</th>
+                        <th>Present</th>
+                        <th>Absent</th>
+                        <th>Attendance</th>
+                        <th>Status</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for report in subject_reports %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ report.subject.subject_name }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ report.subject.subject_code }}
+                        </td>
+
+                        <td>
+                            {{ report.total }}
+                        </td>
+
+                        <td class="text-success">
+                            {{ report.present }}
+                        </td>
+
+                        <td class="text-danger">
+                            {{ report.absent }}
+                        </td>
+
+                        <td>
+
+                            <strong>
+                                {{ "%.2f"|format(report.percentage) }}%
+                            </strong>
+
+                        </td>
+
+                        <td>
+
+                            {% if report.percentage >= 75 %}
+
+                                <span class="badge bg-success">
+                                    Good
+                                </span>
+
+                            {% elif report.percentage >= 60 %}
+
+                                <span class="badge bg-warning text-dark">
+                                    Low
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-danger">
+                                    Critical
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+            <div class="alert alert-info mb-0">
+                No subject-wise attendance data is available yet.
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- Attendance History -->
+
+<div class="card shadow">
+
+    <div class="card-header">
+        <h5 class="mb-0">
+            Attendance History
+        </h5>
+    </div>
+
+    <div class="card-body">
+
+        {% if attendance_history %}
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-hover">
+
+                <thead class="table-secondary">
+
+                    <tr>
+                        <th>#</th>
+                        <th>Date</th>
+                        <th>Subject</th>
+                        <th>Subject Code</th>
+                        <th>Status</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for item in attendance_history %}
+
+                    <tr>
+
+                        <td>
+                            {{ loop.index }}
+                        </td>
+
+                        <td>
+                            {{ item.record.date.strftime('%d-%m-%Y') }}
+                        </td>
+
+                        <td>
+                            {{ item.subject.subject_name }}
+                        </td>
+
+                        <td>
+                            {{ item.subject.subject_code }}
+                        </td>
+
+                        <td>
+
+                            {% if item.record.status == 'Present' %}
+
+                                <span class="badge bg-success">
+                                    Present
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-danger">
+                                    Absent
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+            <div class="alert alert-info mb-0">
+                No attendance records found.
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

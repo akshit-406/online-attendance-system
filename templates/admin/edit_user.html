@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}
+Edit User
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <div class="mb-4">
+
+        <h2>
+            Edit User
+        </h2>
+
+        <p class="text-muted">
+            Update user information
+        </p>
+
+    </div>
+
+
+    <div class="card shadow">
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+                User Information
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <form
+                method="POST"
+                action="{{ url_for('main.edit_user', user_id=user.id) }}"
+            >
+
+                <!-- Username -->
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        name="username"
+                        class="form-control"
+                        value="{{ user.username }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Email -->
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        name="email"
+                        class="form-control"
+                        value="{{ user.email }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Password -->
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        New Password
+                    </label>
+
+                    <input
+                        type="password"
+                        name="password"
+                        class="form-control"
+                        placeholder="Leave blank to keep current password"
+                    >
+
+                    <small class="text-muted">
+                        Leave this field empty if you do not want to change the password.
+                    </small>
+
+                </div>
+
+
+                <!-- Role -->
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Role
+                    </label>
+
+                    <select
+                        name="role"
+                        class="form-select"
+                        required
+                    >
+
+                        <option
+                            value="admin"
+                            {% if user.role == 'admin' %}
+                                selected
+                            {% endif %}
+                        >
+                            Admin
+                        </option>
+
+                        <option
+                            value="teacher"
+                            {% if user.role == 'teacher' %}
+                                selected
+                            {% endif %}
+                        >
+                            Teacher
+                        </option>
+
+                        <option
+                            value="student"
+                            {% if user.role == 'student' %}
+                                selected
+                            {% endif %}
+                        >
+                            Student
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Update User
+                </button>
+
+                <a
+                    href="{{ url_for('main.manage_users') }}"
+                    class="btn btn-secondary"
+                >
+                    Cancel
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

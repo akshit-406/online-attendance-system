@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Complete Teacher Profile</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            width: 500px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        .user-info {
+            background: #f1f1f1;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Complete Teacher Profile</h2>
+
+    <div class="user-info">
+
+        <strong>Username:</strong>
+        {{ user.username }}
+
+        <br><br>
+
+        <strong>Email:</strong>
+        {{ user.email }}
+
+    </div>
+
+    <form method="POST">
+
+        <label>Teacher Name</label>
+
+        <input
+            type="text"
+            name="name"
+            value="{{ user.username }}"
+            required
+        >
+
+        <label>Employee ID</label>
+
+        <input
+            type="text"
+            name="employee_id"
+            required
+        >
+
+        <label>Department</label>
+
+        <input
+            type="text"
+            name="department"
+        >
+
+        <button type="submit">
+            Create Teacher Profile
+        </button>
+
+    </form>
+
+</div>
+
+</body>
+</html>
